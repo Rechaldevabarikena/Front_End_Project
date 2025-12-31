@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Farming Awareness Platform</title>
+  <meta name="description" content="Farming Awareness Platform. Resources, expert chat, market prices, trainings."/>
+  <style>
+    :root{
+      
+      --bg:#f3f7f2; --card:#ffffff; --accent:#2e7d32; --accent-2:#66bb6a; --muted:#546069;
+      --glass: rgba(255,255,255,0.6); --shadow: 0 8px 28px rgba(8,15,20,0.08);
+      font-family: Inter, 'Segoe UI', Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial;
+      color-scheme: light;
+    }
+    /* Full page subtle animated background */
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+        url('farm.jpg') center/cover fixed;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color:#072227;
+    }
+    /* soft animated overlay */
+    body::after{
+      content:"";
+      position:fixed; inset:0;
+      background:
+  linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+  url('farm.jpg') center/cover fixed; 
+      background: linear-gradient(120deg, rgba(46,125,50,0.03), rgba(102,187,106,0.02));
+      pointer-events:none;
+      animation: bgShift 30s linear infinite;
+      mix-blend-mode:overlay;
+    }
+    @keyframes bgShift{0%{transform:translateY(0)}50%{transform:translateY(6px)}100%{transform:translateY(0)}}
+
+    *{box-sizing:border-box}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;backdrop-filter: blur(6px);background:rgba(255,255,255,0.55);border-radius:12px;margin:18px auto;max-width:1100px;box-shadow:var(--shadow)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,0.12)}
+    .nav{display:flex;gap:12px;align-items:center}
+    .btn{padding:10px 14px;border-radius:10px;background:var(--card);box-shadow:0 8px 18px rgba(16,24,40,0.06);cursor:pointer;border:1px solid rgba(0,0,0,0.04);font-weight:600}
+    .btn:active{transform:translateY(1px)}
+    .pill{padding:6px 10px;background:rgba(255,255,255,0.7);border-radius:999px;font-size:13px}
+
+    .container{max-width:1100px;margin:10px auto;padding:18px}
+    .hero{display:flex;gap:18px;align-items:center;padding:18px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.9));box-shadow:var(--shadow);overflow:hidden}
+    .hero .left{flex:1;min-width:220px}
+    h1{margin:0;font-size:28px}
+    p.lead{color:var(--muted);margin-top:8px}
+
+    /* hero image */
+    .hero-media{width:340px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;align-items:center}
+    .hero-media img{width:100%;height:190px;object-fit:cover;border-radius:12px;box-shadow:0 8px 24px rgba(8,15,20,0.08);transition:transform .35s}
+    .hero-media img:hover{transform:scale(1.03)}
+
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:18px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(7,12,17,0.06)}
+    h3{margin:0 0 6px 0}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Resources */
+    .resource-list{display:grid;grid-template-columns:1fr;gap:12px}
+    .resource{display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.03);transition:transform .18s, box-shadow .18s;background:linear-gradient(180deg,#fff,#fbfff9)}
+    .resource:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(8,15,20,0.06)}
+    .resource .thumb{width:120px;height:78px;flex-shrink:0;border-radius:8px;overflow:hidden}
+    .resource .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .resource .meta{flex:1}
+    .resource h4{margin:0;font-size:16px}
+    .resource .link{font-size:13px;color:var(--accent);text-decoration:none;margin-top:6px;display:inline-block}
+    .resource .link:hover{text-decoration:underline}
+
+    /* Chat animated theme */
+    .chat{display:flex;flex-direction:column;height:420px}
+    .messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,rgba(246,251,246,0.8),rgba(255,255,255,0.9));border-radius:8px}
+    .msg{max-width:72%;padding:10px;border-radius:12px;line-height:1.3}
+    .from-me{align-self:flex-end;background:linear-gradient(90deg,#e6f9ea,#dff7df);box-shadow:0 6px 18px rgba(46,125,50,0.06)}
+    .from-them{align-self:flex-start;background:#fff;border:1px solid rgba(0,0,0,0.04);box-shadow:0 6px 18px rgba(0,0,0,0.03)}
+    .chat-input{display:flex;gap:8px;padding-top:8px}
+    .chat-theme{position:relative;overflow:hidden;border-radius:12px}
+    /* animated farm motif in chat background */
+    .chat-theme::before{
+      content:"";
+      position:absolute; inset:0;
+      background-image: url('farm2.jpg');
+      opacity:0.06; background-size:cover; filter:blur(2px);
+      transform: translateY(0);
+      animation: chatFloat 18s linear infinite;
+    }
+    @keyframes chatFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+    /* Market image */
+    .market-img{width:100%;height:140px;object-fit:cover;border-radius:10px;box-shadow:0 8px 24px rgba(8,15,20,0.06)}
+
+    /* Workshops */
+    .card .small{font-size:13px;color:var(--muted)}
+
+    /* Admin editable */
+    #adminEditable{min-height:80px}
+
+    /* Toast */
+    .toast{position:fixed;right:18px;bottom:18px;padding:10px 14px;background:rgba(0,0,0,0.78);color:white;border-radius:8px;z-index:9999}
+
+    /* responsive */
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr; padding-bottom:30px}
+      .hero{flex-direction:column}
+      .hero-media{width:100%}
+      header{margin:10px}
+    }
+    /* small animations */
+    .fade-in{animation:fadeIn .45s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    a.external{color:var(--accent);font-weight:600}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">FA</div>
+      <div>
+        <div style="font-weight:700">Farming Awareness</div>
+        <div style="font-size:13px;color:var(--muted)">Platform to empower farmers</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="pill" id="currentRoleDisplay">Role: Guest</div>
+      <button class="btn" id="openLogin">Sign In</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero fade-in" aria-labelledby="hero-heading">
+      <div class="left">
+        <h1 id="hero-heading">Inspire society about farming — support farmers with resources & connections</h1>
+        <p class="lead">Access learning materials, talk to agricultural experts, check daily market prices, and find training/workshops — all in one friendly platform.</p>
+        <div class="role-badges" style="margin-top:12px">
+          <button class="btn" onclick="setRole('farmer')">I'm a Farmer</button>
+          <button class="btn" onclick="setRole('expert')">I'm an Expert</button>
+          <button class="btn" onclick="setRole('admin')">I'm Admin</button>
+          <button class="btn" onclick="setRole('public')">Explore as Public</button>
+        </div>
+        <div style="margin-top:12px;color:var(--muted);font-size:13px">
+          <strong>Tip:</strong> Login to add resources, chat with experts, and register for workshops.
+        </div>
+      </div>
+
+      <aside class="hero-media" aria-hidden="false">
+        <!-- Hero image -->
+        <img src="farmm.jpg" alt="Farmers in field" />
+        <!-- quick links -->
+        <div style="display:flex;gap:8px;width:100%">
+          <a class="btn" href="https://icar.org.in" target="_blank" rel="noopener">ICAR</a>
+          <a class="btn" href="https://www.fao.org" target="_blank" rel="noopener">FAO</a>
+        </div>
+      </aside>
+    </section>
+
+    <div class="grid">
+      <!-- MAIN COLUMN -->
+      <section>
+        <!-- Resources -->
+        <div class="card fade-in" style="margin-bottom:12px" aria-labelledby="resources-heading">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h3 id="resources-heading" style="margin:0">Resources</h3>
+              <div class="small muted">Each resource links to an external trusted page or a downloadable guide.</div>
+            </div>
+            <div class="muted">Filtered for: <span id="resourceFilter">All</span></div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="resourceCategory" onchange="applyFilter()" aria-label="Filter resources by category">
+              <option value="all">All categories</option>
+              <option value="crops">Crop Management</option>
+              <option value="soil">Soil & Fertility</option>
+              <option value="pests">Pest Control</option>
+              <option value="market">Market & Finance</option>
+            </select>
+            <input type="text" id="resourceSearch" placeholder="Search resources" oninput="applyFilter()" aria-label="Search resources"/>
+            <button class="btn" onclick="openAddResource()">Add Resource</button>
+          </div>
+
+          <div style="margin-top:12px" id="resourcesContainer" class="resource-list"></div>
+        </div>
+
+        <!-- Community & Chat -->
+        <div class="card fade-in" style="margin-bottom:12px">
+          <h3 style="margin:0">Community & Expert Chat</h3>
+          <div class="muted">Connect with other farmers and agricultural experts. Chat is simulated locally in this prototype.</div>
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:260px">
+              <div class="card chat chat-theme">
+                <div class="messages" id="messages" aria-live="polite" aria-atomic="false"></div>
+                <div class="chat-input" style="margin-top:8px">
+                  <input type="text" id="chatInput" placeholder="Write a message..." style="flex:1;padding:10px;border-radius:8px;border:1px solid #e8eee8" />
+                  <button class="btn" onclick="sendMessage()">Send</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="width:220px;min-width:200px">
+              <div class="card">
+                <h4 style="margin:0">Experts Online</h4>
+                <div class="muted" style="margin-top:8px">Tap an expert to start a specialised thread.</div>
+                <ul style="padding-left:14px;margin-top:10px;">
+                  <li><a href="#" onclick="startExpertChat('Dr. Ramesh');return false;">Dr. Ramesh</a></li>
+                  <li><a href="#" onclick="startExpertChat('Ms. Anita');return false;">Ms. Anita</a></li>
+                  <li><a href="#" onclick="startExpertChat('Krishi Kendra');return false;">Krishi Kendra</a></li>
+                </ul>
+                <div style="margin-top:12px">
+                  <small class="muted">Animated theme and soft background make chat pleasant for long reads.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trainings & Workshops -->
+        <div class="card fade-in">
+          <h3 style="margin:0">Trainings & Workshops</h3>
+          <div class="muted">Exact details of upcoming training for farmers. Click register to simulate sign-up.</div>
+          <div id="workshopList" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- SIDEBAR -->
+      <aside>
+        <!-- Market -->
+        <div class="card fade-in" style="margin-bottom:12px">
+          <h4 style="margin:0">Daily Market Prices</h4>
+          <div class="muted" id="marketDate">Last updated:</div>
+          <img id="marketImg" class="market-img" src="mar.jpg" alt="Market  image" />
+          <div id="marketGrid" style="margin-top:12px"></div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn" onclick="simulateMarketUpdate()">Simulate daily update</button>
+            <a class="btn" href="https://agmarknet.gov.in" target="_blank" rel="noopener">Agmarknet</a>
+          </div>
+        </div>
+
+        <!-- Admin -->
+        <div class="card fade-in" style="margin-bottom:12px">
+          <h4 style="margin:0">Admin Panel (preview)</h4>
+          <div class="muted">Edit platform content (saved locally)</div>
+          <div style="margin-top:12px">
+            <div contenteditable="true" id="adminEditable" style="padding:8px;border-radius:8px;border:1px solid #eef3ef;min-height:70px">Welcome to the Farming Awareness Platform. Admins can edit this summary to manage content.</div>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn" onclick="saveAdminContent()">Save</button>
+              <button class="btn" onclick="resetAdminContent()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card fade-in">
+          <h4 style="margin:0">Quick Actions</h4>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+            <button class="btn" onclick="openLogin()">Sign In</button>
+            <button class="btn" onclick="openRegister()">Register</button>
+            <a class="btn" href="https://kvk.icar.gov.in" target="_blank" rel="noopener">Krishi Vigyan Kendra</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer style="margin-top:22px;background:url('farm2.jpg') center/cover;padding:28px;border-top-left-radius:12px;border-top-right-radius:12px;max-width:1100px;margin-left:auto;margin-right:auto;color:white">
+    <div style="backdrop-filter: blur(4px);background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.06));padding:12px;border-radius:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>© Farming Awareness — platform • Built with HTML/CSS/JS</div>
+        <div style="font-size:13px"><a class="external" href="https://icar.org.in" target="_blank" rel="noopener" style="color:white">ICAR</a> • <a class="external" href="https://www.fao.org" target="_blank" rel="noopener" style="color:white">FAO</a> • <a class="external" href="https://agmarknet.gov.in" target="_blank" rel="noopener" style="color:white">Agmarknet</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login modal -->
+  <div class="modal" id="loginModal" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);background:rgba(2,6,10,0.18);visibility:hidden;opacity:0;transition:all .22s;z-index:999">
+    <div class="modal-box" style="width:360px;background:linear-gradient(180deg,#fff,#f7fff7);padding:20px;border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.12)">
+      <h3 style="margin:0">Sign In</h3>
+      <div class="muted" style="margin-top:6px">Enter your role and credentials.</div>
+      <label style="display:block;margin-top:12px;font-size:13px;color:var(--muted)">Role</label>
+      <select id="loginRole" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6eef0">
+        <option value="farmer">Farmer</option>
+        <option value="expert">Agricultural Expert</option>
+        <option value="admin">Admin</option>
+        <option value="public">Public</option>
+      </select>
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Username</label>
+      <input type="text" id="loginUser" placeholder="username" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6eef0" />
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Password <span style="font-size:12px;color:var(--muted)">(max 8 characters)</span></label>
+      <input type="password" id="loginPass" placeholder="password" style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6eef0" />
+      <div class="error" id="loginError" style="display:none;color:#c53030;font-size:13px;margin-top:6px"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn" onclick="closeLogin()">Cancel</button>
+        <button class="btn" onclick="performLogin()">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Resource modal -->
+  <div class="modal" id="addResourceModal" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);background:rgba(2,6,10,0.18);visibility:hidden;opacity:0;transition:all .22s;z-index:999">
+    <div class="modal-box" style="width:420px;background:linear-gradient(180deg,#fff,#f7fff7);padding:20px;border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.12)">
+      <h3 style="margin:0">Add Resource</h3>
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Title</label>
+      <input type="text" id="resTitle" />
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Category</label>
+      <select id="resCategory">
+        <option value="crops">Crop Management</option>
+        <option value="soil">Soil & Fertility</option>
+        <option value="pests">Pest Control</option>
+        <option value="market">Market & Finance</option>
+      </select>
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Author</label>
+      <input type="text" id="resAuthor" />
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Details (brief)</label>
+      <input type="text" id="resBrief" />
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">Image URL (optional)</label>
+      <input type="text" id="resImage" placeholder="footer.jpg" />
+      <label style="display:block;margin-top:10px;font-size:13px;color:var(--muted)">External Link (optional)</label>
+      <input type="text" id="resLink" placeholder="sun.jpg" />
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn" onclick="closeAddResource()">Cancel</button>
+        <button class="btn" onclick="saveResource()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Data & defaults ---
+    const defaultResources = [
+      {id:1,title:'Integrated Pest Management',category:'pests',author:'Dr. Ramesh',brief:'Low-cost pest control methods.',img:'pc.jpg',link:'https://icar.org.in'},
+      {id:2,title:'Soil Testing Basics',category:'soil',author:'Ms. Anita',brief:'How to test and amend soil.',img:'footer.jpg',link:'https://www.fao.org'},
+      {id:3,title:'Crop Rotation Methods',category:'crops',author:'Agronomy Dept',brief:'Increase yield with rotation.',img:'cri.jpg',link:'https://icar.org.in'},
+      {id:4,title:'Understanding Market Trends',category:'market',author:'Market Analyst',brief:'Daily market analysis and tips.',img:'umt.jpg',link:'https://agmarknet.gov.in'}
+    ];
+    const defaultWorkshops = [
+      {id:1,title:'Rice SRI Training',date:'2025-12-05',place:'Village Hall, Block A',details:'Hands-on training on System of Rice Intensification.'},
+      {id:2,title:'Organic Inputs Workshop',date:'2025-12-12',place:'Agriculture College',details:'Prepare organic fertilizers and pesticides.'}
+    ];
+
+    // --- Initialization ---
+    function init(){
+      if(!localStorage.getItem('resources')) localStorage.setItem('resources',JSON.stringify(defaultResources));
+      if(!localStorage.getItem('workshops')) localStorage.setItem('workshops',JSON.stringify(defaultWorkshops));
+      if(!localStorage.getItem('messages')) localStorage.setItem('messages',JSON.stringify([{text:'Welcome to Farming Awareness — ask a question!',me:false,date:new Date().toISOString()}]));
+      if(!localStorage.getItem('adminContent')) localStorage.setItem('adminContent','Welcome to the Farming Awareness Platform. Admins can edit this summary to manage content.');
+      document.getElementById('adminEditable').innerText = localStorage.getItem('adminContent');
+      renderResources(); renderWorkshops(); renderMarket(); renderMessages();
+      // modal visibility toggles
+      document.querySelectorAll('.modal').forEach(m=>{m.style.visibility='hidden'; m.style.opacity=0});
+      // set login button handler
+      document.getElementById('openLogin').onclick = openLogin;
+    }
+
+    // --- Roles / login ---
+    let currentRole = 'guest';
+    function setRole(r){ currentRole=r; document.getElementById('currentRoleDisplay').innerText='Role: '+capitalize(r); toast('Role set to '+capitalize(r)); }
+    function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+    // Login modal controls
+    function openLogin(){ const m = document.getElementById('loginModal'); m.style.visibility='visible'; m.style.opacity=1; }
+    function closeLogin(){ const m = document.getElementById('loginModal'); m.style.opacity=0; setTimeout(()=>{m.style.visibility='hidden'},250); }
+    function openRegister(){ toast('Register placeholder — connect to backend in production'); }
+    function performLogin(){
+      const role = document.getElementById('loginRole').value;
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      const err = document.getElementById('loginError'); err.style.display='none'; err.innerText='';
+      if(pass.length > 8){ err.style.display='block'; err.innerText='Password must be maximum of 8 characters.'; return; }
+      if(!user){ err.style.display='block'; err.innerText='Please enter username.'; return; }
+      currentRole = role; document.getElementById('currentRoleDisplay').innerText='Role: '+capitalize(role);
+      closeLogin(); toast('Signed in as '+user+' ('+role+')');
+    }
+
+    // --- Resources rendering / adding ---
+    function renderResources(){
+      const container = document.getElementById('resourcesContainer');
+      container.innerHTML = '';
+      const resources = JSON.parse(localStorage.getItem('resources')||'[]');
+      resources.forEach(r=>{
+        const div = document.createElement('div'); div.className='resource';
+        div.innerHTML = `
+          <div class="thumb"><img src="${'res.jpg'}" alt="${escapeHtml(r.title)}"></div>
+          <div class="meta">
+            <h4>${escapeHtml(r.title)}</h4>
+            <div class="small muted">by ${escapeHtml(r.author)} • ${escapeHtml(r.category)}</div>
+            <div style="margin-top:6px">${escapeHtml(r.brief)}</div>
+            <div style="margin-top:8px">
+              ${r.link ? `<a class="link" href="${r.link}" target="_blank" rel="noopener">Open resource</a>` : `<button class="btn" onclick="openResource(${r.id})">Open</button>`}
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function applyFilter(){
+      const cat = document.getElementById('resourceCategory').value;
+      const q = document.getElementById('resourceSearch').value.toLowerCase();
+      document.getElementById('resourceFilter').innerText = (cat==='all'?'All':cat);
+      const resources = JSON.parse(localStorage.getItem('resources')||'[]');
+      const filtered = resources.filter(r=> (cat==='all'||r.category===cat) && (r.title.toLowerCase().includes(q) || r.brief.toLowerCase().includes(q) || r.author.toLowerCase().includes(q)));
+      // render filtered
+      const container = document.getElementById('resourcesContainer'); container.innerHTML='';
+      filtered.forEach(r=>{
+        const div = document.createElement('div'); div.className='resource';
+        div.innerHTML = `
+          <div class="thumb"><img src="${'sun.jpg'}" alt="${escapeHtml(r.title)}"></div>
+          <div class="meta">
+            <h4>${escapeHtml(r.title)}</h4>
+            <div class="small muted">by ${escapeHtml(r.author)} • ${escapeHtml(r.category)}</div>
+            <div style="margin-top:6px">${escapeHtml(r.brief)}</div>
+            <div style="margin-top:8px">
+              ${r.link ? `<a class="link" href="${r.link}" target="_blank" rel="noopener">Open resource</a>` : `<button class="btn" onclick="openResource(${r.id})">Open</button>`}
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function openResource(id){
+      const resources = JSON.parse(localStorage.getItem('resources')||'[]');
+      const r = resources.find(x=>x.id===id); if(!r) return;
+      // show details modal (simple alert for prototype)
+      alert(`${r.title}\n\nAuthor: ${r.author}\nCategory: ${r.category}\n\n${r.brief}\n\nOpen external link if available from the list.`)
+    }
+
+    function openAddResource(){
+      if(currentRole==='expert' || currentRole==='admin' || currentRole==='farmer'){
+        const m = document.getElementById('addResourceModal'); m.style.visibility='visible'; m.style.opacity=1;
+      } else {
+        toast('Only signed-in experts, admins or farmers can add resources. Sign in first.');
+      }
+    }
+    function closeAddResource(){ const m=document.getElementById('addResourceModal'); m.style.opacity=0; setTimeout(()=>{m.style.visibility='hidden'},240); }
+    function saveResource(){
+      const title = document.getElementById('resTitle').value.trim();
+      const cat = document.getElementById('resCategory').value;
+      const auth = document.getElementById('resAuthor').value.trim();
+      const brief = document.getElementById('resBrief').value.trim();
+      const img = document.getElementById('resImage').value.trim();
+      const link = document.getElementById('resLink').value.trim();
+      if(!title || !auth){ alert('Please provide title and author'); return; }
+      const resources = JSON.parse(localStorage.getItem('resources')||'[]');
+      const id = Date.now();
+      resources.push({id,title,category:cat,author:auth,brief,img,link});
+      localStorage.setItem('resources',JSON.stringify(resources));
+      closeAddResource(); renderResources(); toast('Resource added');
+      // clear input fields
+      document.getElementById('resTitle').value=''; document.getElementById('resAuthor').value=''; document.getElementById('resBrief').value=''; document.getElementById('resImage').value=''; document.getElementById('resLink').value='';
+    }
+
+    // --- Chat (simulated) ---
+    function renderMessages(){
+      const msgs = JSON.parse(localStorage.getItem('messages')||'[]');
+      const container = document.getElementById('messages'); container.innerHTML='';
+      msgs.forEach(m=>{
+        const d = document.createElement('div'); d.className = 'msg ' + (m.me ? 'from-me' : 'from-them');
+        d.innerText = m.text;
+        container.appendChild(d);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+    function sendMessage(){
+      const t = document.getElementById('chatInput'); const text = t.value.trim(); if(!text) return;
+      const msgs = JSON.parse(localStorage.getItem('messages')||'[]'); msgs.push({text,me:true,date:new Date().toISOString()});
+      localStorage.setItem('messages',JSON.stringify(msgs)); t.value=''; renderMessages();
+      // tiny animation reply
+      setTimeout(()=>{const msgs2=JSON.parse(localStorage.getItem('messages')||'[]'); msgs2.push({text:'Thanks — an expert will reply soon. Tip: search resources for guides.',me:false,date:new Date().toISOString()}); localStorage.setItem('messages',JSON.stringify(msgs2)); renderMessages()},900);
+    }
+    function startExpertChat(name){
+      const msgs = JSON.parse(localStorage.getItem('messages')||'[]'); msgs.push({text:`Started chat with ${name}`,me:false,date:new Date().toISOString()});
+      localStorage.setItem('messages',JSON.stringify(msgs)); renderMessages(); toast('Opened chat with '+name);
+    }
+
+    // --- Workshops ---
+    function renderWorkshops(){
+      const ws = JSON.parse(localStorage.getItem('workshops')||'[]'); const c = document.getElementById('workshopList'); c.innerHTML='';
+      ws.forEach(w=>{
+        const d = document.createElement('div'); d.className='card'; d.style.marginTop='8px';
+        d.innerHTML = `<strong>${escapeHtml(w.title)}</strong><div class='small muted'>${escapeHtml(w.date)} • ${escapeHtml(w.place)}</div><div style='margin-top:6px'>${escapeHtml(w.details)}</div><div style='margin-top:8px'><button class='btn' onclick='registerWorkshop(${w.id})'>Register</button></div>`;
+        c.appendChild(d);
+      });
+    }
+    function registerWorkshop(id){ const ws = JSON.parse(localStorage.getItem('workshops')||'[]'); const w = ws.find(x=>x.id===id); if(!w) return; toast('Registered for: '+w.title); }
+
+    // --- Market ---
+    function renderMarket(){
+      const crops = ['Rice','Wheat','Maize','Cotton'];
+      const grid = document.getElementById('marketGrid'); grid.innerHTML='';
+      const today = localStorage.getItem('marketDate') || new Date().toISOString();
+      document.getElementById('marketDate').innerText = 'Last updated: '+new Date(today).toLocaleString();
+      const data = JSON.parse(localStorage.getItem('marketData')||'[]');
+      if(data.length===0){ simulateMarketUpdate(); return; }
+      data.forEach(x=>{
+        const div = document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.padding='8px 0';
+        div.innerHTML = `<div>${escapeHtml(x.crop)}</div><div><strong>₹${x.price.toFixed(2)}</strong><div class='muted' style='font-size:12px'>${escapeHtml(x.unit)}</div></div>`;
+        grid.appendChild(div);
+      });
+    }
+    function simulateMarketUpdate(){
+      const crops = ['Rice','Wheat','Maize','Cotton'];
+      const data = crops.map(c=>({crop:c,price:(Math.random()*200+1200),unit:'per quintal'}));
+      localStorage.setItem('marketData',JSON.stringify(data)); localStorage.setItem('marketDate',new Date().toISOString()); renderMarket(); toast('Market prices updated');
+    }
+
+    // --- Admin content ---
+    function saveAdminContent(){ const content = document.getElementById('adminEditable').innerText; localStorage.setItem('adminContent',content); toast('Admin content saved'); }
+    function resetAdminContent(){ localStorage.setItem('adminContent','Welcome to the Farming Awareness Platform. Admins can edit this summary to manage content.'); document.getElementById('adminEditable').innerText = localStorage.getItem('adminContent'); toast('Reset to default'); }
+
+    // --- Helpers & UI --- 
+    function toast(msg){
+      const t = document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t);
+      setTimeout(()=>{ t.style.transition='all .35s'; t.style.opacity=0; t.style.transform='translateY(6px)'; setTimeout(()=>t.remove(),400) },2400);
+    }
+    function escapeHtml(text){ if(!text && text!==0) return ''; return String(text).replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+
+    // persistence & boot
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
