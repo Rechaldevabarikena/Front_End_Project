@@ -3,5 +3,5 @@
 
 [[redirects]]
   from = "/"
-  to = "/pages/login.html"
+  to = "farming.html"
   status = 200
